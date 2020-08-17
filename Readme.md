@@ -1,1 +1,1 @@
-# Grasseum directory
+# Grasseum glob
