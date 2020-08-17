@@ -1,0 +1,23 @@
+{
+  "name": "grasseum_glob",
+  "version": "1.0.1",
+  "description": "Grasseum glob library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Grasseum"
+  ],
+  "dependencies": {},
+  "author": "Pein Freccs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grasseum/grasseum_directory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grasseum/grasseum_directory/issues"
+  },
+  "homepage": "https://github.com/grasseum/grasseum_directory#readme"
+}
