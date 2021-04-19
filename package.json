@@ -1,15 +1,17 @@
 {
   "name": "grasseum_glob",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "Grasseum glob library",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "es_linter": "eslint util/*.js  *.js --fix"
   },
   "keywords": [
     "Grasseum"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "pathassist": "^0.1.1"
+  },
   "author": "Pein Freccs",
   "license": "MIT",
   "repository": {
