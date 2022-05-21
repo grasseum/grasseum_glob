@@ -4,7 +4,7 @@ const path = require("path");
 const structkit = require("structkit");
 const grasseumCore = require("grasseum_console");
 
-const {unixpath} = require('pathassist');
+const {unixpath} = require('path-assist');
 
 const ValidRegexpFolderLookup = /(\*|!)/g;
 /**
@@ -40,78 +40,104 @@ function SrcDir (pathVar, func) {
     this.srcDirInit();
 
 }
-SrcDir.prototype.scanDirList =  function (inc,complete_func) {
+SrcDir.prototype.scanDirList =  async function (inc,complete_func) {
 
     const that = this;
     if(this.loc_path_split.length > inc){
-        const folderIndexName =   this.loc_path_split[inc];  
+        const folderIndexName =   this.loc_path_split[inc].trim();  
+        const testss = /(\*|!)/g.test(folderIndexName)
+        if (testss) {
+           
+      
+        try{
+           
+             let incKey =0;
+           await that.scanDirListValue.forEach( async (mv,mk) =>{
 
-        if ((ValidRegexpFolderLookup).test(folderIndexName)) {
 
-            const folderIndexNameList = structkit.toArray( structkit.getValue (structkit.limit(this.loc_path_split ,0,inc -1 ) )  );
-          
-            fs.readdir(folderIndexNameList.join("/") ,(error,stats) =>{  
-               if(structkit.has(error) == false){
-                structkit.each(stats,function(key,val){
-                    const valArrayFolder = structkit.arrayConcat( structkit.clone( folderIndexNameList) ,val);
-                    if( unixpath.regexpMatch(folderIndexName, val) ){
-                        if(structkit.has( that.scanDirListValue ,key)){
-                            that.scanDirListValue[key] =  valArrayFolder;
+                const pathVariable = mv.join("/");
+
+  
+               
+               const fsLstat = fs.lstatSync( pathVariable);
+
+
+               if (fsLstat.isFile()) {
+                   //if("src/module/index.esm.js"===pathVariable)
+                   //console.log(pathVariable,"::pathVariable_file",inc,this.loc_path_split.length)
+                  // this.loc_path_split=structkit.delimiter(this.loc_path_split ,0, inc);
+                  // await  that.scanDirList(inc+4,complete_func);
+                }
+               if(fsLstat.isDirectory()){
+                //console.log(pathVariable,"::pathVariable_dir")
+                const readDir = await fs.readdirSync( pathVariable );
+                    
+                 await readDir.forEach( async function(  val , key) {
+                    const valArrayFolder = structkit.arrayConcat( structkit.clone( mv) ,val);
+                        if(structkit.has( that.scanDirListValue ,incKey)){
+                            that.scanDirListValue[incKey] =  valArrayFolder;
                         }else{
                              
                             that.scanDirListValue.push(valArrayFolder);
                         }
-                    }
+                        incKey+=1;
                     
                 });
-               }
                 
-                this.scanDirList(inc+1,complete_func);
-            }); 
-           
 
+               }
+               await  that.scanDirList(inc+1,complete_func);
+                
+           } )
+          
+
+        }
+        catch(error){
+            console.log( error, ":Error")
+        }    
+         
+             
         }else{
-           
             if(this.scanDirListValue.length ==0 ){
                 this.scanDirListValue.push([folderIndexName]);
             }else{
                 this.scanDirListValue.forEach((value,key) =>{
-                    that.scanDirListValue[key] =  structkit.arrayConcat(value,folderIndexName);
+                    
+                     that.scanDirListValue[key] =  structkit.arrayConcat(value,folderIndexName);
                 });
             }
-            this.scanDirList(inc+1,complete_func);
-        }
+            await this.scanDirList(inc+1,complete_func); 
+        
+        }   
     }else{
         complete_func();
     }
     
 }
-SrcDir.prototype.srcDirInit =   async function () {
+SrcDir.prototype.srcDirInit =  async  function () {
 
     if (this.loc_path_split.length > 0) {
         const that = this;
-        if ((ValidRegexpFolderLookup).test(this.loc_path)) {
+        const testss = /(\*|!)/g.test(that.loc_path) 
+        if (testss) {
                
-
-                this.scanDirList(0,function(){
+               
+            await this.scanDirList(0,function(){
                    
                    that.scanDirListValue.forEach( (value) =>{
-                    that.srcDirFile(value.join("/"));
+                          
+                            that.srcDirFile(value.join("/"));
+                        
                    });
                 });
         } else {
-
-            /*
-             * Ary_join.push(loc_path[0]);
-             * loc_path.shift();
-             */
+           
             this.srcDirFile(this.loc_path);
 
         }
 
     }
-    //
-
+    
 
 };
 
@@ -213,13 +239,11 @@ SrcDir.prototype.srcDirFile = function (paths) {
 
 
             if (stats.isFile()) {
+                  
 
                 const raw_basename = unixpath.cleanPathname(path.basename(paths));
 
-                if (that.validateFile(paths) && structkit.indexOf([
-                    "grassfile.js",
-                    "grasshttp.js"
-                ], raw_basename) ===-1) {
+                if (that.validateFile(paths) ) {
 
                     that.func({"directory": unixpath.cleanPathname(path.dirname(paths)),
                         "filename": raw_basename,
@@ -269,7 +293,7 @@ SrcDir.prototype.srcDirFile = function (paths) {
 
         } else {
 
-            grasseumCore.logRed("error", err.toString(), ":", this.path_var);
+            grasseumCore.logRed("error", err.toString(), this.path_var );
 
         }
 

@@ -10,7 +10,7 @@
     "Grasseum"
   ],
   "dependencies": {
-    "pathassist": "^0.1.1"
+    "path-assist": "^0.1.1"
   },
   "author": "Pein Freccs",
   "license": "MIT",
